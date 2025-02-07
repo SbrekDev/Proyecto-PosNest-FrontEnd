@@ -18,7 +18,7 @@ export default function TransactionFilter() {
 
     const [date, setDate] = useState<Value>( new Date())
 
-    const formattedDate = format(date?.toString()!, 'yyyy-MM-dd')
+    const formattedDate = format(date!.toString(), 'yyyy-MM-dd') ?? ''
     const {data, isLoading} = useQuery({
         queryKey: ['sales', formattedDate],
         queryFn: () => getSalesByDate(formattedDate)
