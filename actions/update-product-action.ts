@@ -1,0 +1,52 @@
+"use server"
+
+import { ErrorResponseSchema, Product, ProductFormSchema } from "@/src/schemas"
+
+
+type ActionStateType = {
+    errors: string[],
+    success: string
+}
+
+export async function updateProduct(productId: Product['id'] ,prevState: ActionStateType, formdata: FormData){
+
+    const product = ProductFormSchema.safeParse({
+        name: formdata.get('name'),
+        price: formdata.get('price'),
+        image: formdata.get('image'),
+        inventory: formdata.get('inventory'),
+        categoryId: formdata.get('categoryId'),
+    })
+
+    if(!product.success){
+        return {
+            errors: product.error.issues.map(issue => issue.message),
+            success: ''
+        }
+    }
+    const url = `${process.env.API_URL}/products/${productId}`
+    const req = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product.data)
+    })
+
+    const json = await req.json()
+
+    if(!req.ok){
+        const errors = ErrorResponseSchema.parse(json)
+        return {
+            errors : errors.message.map(issue => issue),
+            success: ''
+        }
+        
+    }
+
+
+    return {
+        errors: [],
+        success: 'Producto actualizado correctamente'
+    }
+}
